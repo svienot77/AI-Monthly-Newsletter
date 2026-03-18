@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Pulse | {{DATE}}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f4;">
+    <tr>
+      <td align="center" style="padding:20px 0;">
+
+        <!-- Main container -->
+        <table width="680" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;width:100%;background-color:#ffffff;">
+
+          <!-- HEADER -->
+          <tr>
+            <td style="background-color:#0f1f3d;padding:28px 36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="color:#ffffff;font-size:26px;font-weight:bold;letter-spacing:1px;">AI Pulse</td>
+                  <td align="right" style="color:#a8c4e0;font-size:13px;vertical-align:middle;">{{DATE}}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding-top:6px;color:#a8c4e0;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Intelligence for Microsoft Support Leadership</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- EDITORIAL INTRO -->
+          <tr>
+            <td style="padding:28px 36px 20px 36px;border-bottom:1px solid #e8e8e8;">
+              <p style="margin:0;font-size:15px;line-height:1.7;color:#333333;">
+                {{INTRO}}
+              </p>
+            </td>
+          </tr>
+
+          <!-- KEY TAKEAWAYS -->
+          <tr>
+            <td style="padding:24px 36px;">
+              <p style="margin:0 0 12px 0;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#0078d4;">&#9679; Key Takeaways</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <!-- REPEAT BLOCK: one <tr> per takeaway bullet -->
+                <!--
+                <tr>
+                  <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">
+                    <p style="margin:0;font-size:14px;color:#333333;line-height:1.6;">&#8226;&nbsp; <strong>{{TAKEAWAY_LABEL}}:</strong> {{TAKEAWAY_TEXT}}</p>
+                  </td>
+                </tr>
+                -->
+                {{TAKEAWAYS}}
+              </table>
+            </td>
+          </tr>
+
+          <!-- DEEP DIVE -->
+          <tr>
+            <td style="padding:0 36px 28px 36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f8f9fa;border-left:4px solid #0078d4;">
+                <tr>
+                  <td style="padding:24px 24px 28px 24px;">
+                    <p style="margin:0 0 16px 0;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#0078d4;">&#9646; Deep Dive</p>
+                    <p style="margin:0 0 10px 0;font-size:19px;font-weight:bold;color:#0f1f3d;line-height:1.3;">{{DEEPDIVE_TITLE}}</p>
+                    <!-- REPEAT BLOCK: one sub-section per topic -->
+                    <!--
+                    <p style="margin:0 0 14px 0;font-size:14px;color:#333333;line-height:1.7;">{{DEEPDIVE_INTRO}}</p>
+                    <p style="margin:0 0 10px 0;font-size:15px;font-weight:bold;color:#0f1f3d;">{{SUBSECTION_TITLE}}</p>
+                    <p style="margin:0 0 14px 0;font-size:14px;color:#333333;line-height:1.7;">{{SUBSECTION_BODY}}</p>
+                    -->
+                    {{DEEPDIVE_BODY}}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- AGENTIC AI WATCH HEADER -->
+          <tr>
+            <td style="padding:4px 36px 0 36px;">
+              <p style="margin:0 0 16px 0;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#0078d4;">&#9889; Agentic AI Watch</p>
+            </td>
+          </tr>
+
+          <!-- REPEAT BLOCK: one <tr> per agentic AI item; same pattern as News Briefs -->
+          <!--
+          <tr>
+            <td style="padding:0 36px 0 36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8e8e8;">
+                <tr>
+                  <td style="padding:16px 0 12px 0;">
+                    <span style="display:inline-block;border:1px solid #0078d4;color:#0078d4;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:10px;letter-spacing:1px;">{{COMPANY_TAG}}</span>
+                    <p style="margin:10px 0 6px 0;font-size:14px;font-weight:bold;color:#0f1f3d;">{{AGENTIC_HEADLINE}}</p>
+                    <p style="margin:0;font-size:13px;color:#555555;line-height:1.6;">{{AGENTIC_BODY}}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          -->
+          {{AGENTICWATCH}}
+
+          <!-- NEWS BRIEFS HEADER -->
+          <tr>
+            <td style="padding:4px 36px 0 36px;">
+              <p style="margin:0 0 16px 0;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#0078d4;">News Briefs</p>
+            </td>
+          </tr>
+
+          <!-- REPEAT BLOCK: one <tr> per news brief; last brief uses padding-bottom:28px -->
+          <!--
+          <tr>
+            <td style="padding:0 36px 0 36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8e8e8;">
+                <tr>
+                  <td style="padding:16px 0 12px 0;">
+                    <span style="display:inline-block;border:1px solid #0078d4;color:#0078d4;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:10px;letter-spacing:1px;">{{COMPANY_TAG}}</span>
+                    <p style="margin:10px 0 6px 0;font-size:14px;font-weight:bold;color:#0f1f3d;">{{BRIEF_HEADLINE}}</p>
+                    <p style="margin:0;font-size:13px;color:#555555;line-height:1.6;">{{BRIEF_BODY}}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          -->
+          {{NEWS_BRIEFS}}
+
+          <!-- FOOTER / SOURCES -->
+          <tr>
+            <td style="background-color:#f0f0f0;padding:24px 36px;">
+              <p style="margin:0 0 12px 0;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#666666;">Sources &amp; Further Reading</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <!-- REPEAT BLOCK: one <tr> per source link -->
+                <!--
+                <tr>
+                  <td style="padding:3px 0;font-size:12px;color:#555555;">
+                    <a href="{{SOURCE_URL}}" style="color:#0078d4;text-decoration:none;">{{SOURCE_LABEL}}</a>
+                  </td>
+                </tr>
+                -->
+                {{SOURCES}}
+              </table>
+              <p style="margin:20px 0 0 0;font-size:11px;color:#999999;text-align:center;">AI Pulse &bull; Microsoft Support Leadership &bull; {{DATE}}</p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Main container -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- /Wrapper -->
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python tools/send_email.py)",
+      "Bash(pip install python-dotenv -q)",
+      "WebSearch",
+      "Bash(ls \"c:\\\\Users\\\\svienot\\\\OneDrive\\\\Documents\\\\Personnel\\\\Domotique\\\\Claude\\\\Newsletter Demo\\\\.tmp\"\" 2>/dev/null || echo \"dir not found \")",
+      "Bash(python tools/send_email.py --subject \"AI Pulse | March 2026\")",
+      "Bash(ls \"c:\\\\Users\\\\svienot\\\\OneDrive\\\\Documents\\\\Personnel\\\\Domotique\\\\Claude\\\\Newsletter Demo\\\\.tmp\"\" 2>/dev/null || echo \"Directory empty or does not exist \")",
+      "Bash(\"C:/Users/svienot/OneDrive/Documents/Personnel/Domotique/Claude/Newsletter Demo/.gitignore\":*)"
+    ]
+  }
+}
