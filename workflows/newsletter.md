@@ -24,17 +24,18 @@ In practice: each item should answer "so what does this mean for how AI is being
 
 ### Step 1 — Research
 
-Run **10 parallel searches** covering:
+Run **11 parallel searches** covering:
 1. `Anthropic news last 31 days`
 2. `Google DeepMind AI news last 31 days`
 3. `Meta AI news last 31 days`
-4. `Microsoft AI Copilot news last 31 days`
-5. `Perplexity AI news last 31 days`
-6. `OpenAI AI news last 31 days`
-7. `Nvidia AI news last 31 days`
-8. `{TOPIC} AI last 31 days` ← user-specified topic
-9. `agentic AI agents progress announcements last 31 days`
-10. `AI agents enterprise strategy deployment last 31 days`
+4. `Microsoft AI Foundry news last 31 days`
+5. `Microsoft Copilot AI news last 31 days`
+6. `Perplexity AI news last 31 days`
+7. `OpenAI AI news last 31 days`
+8. `Nvidia AI news last 31 days`
+9. `{TOPIC} AI last 31 days` ← user-specified topic
+10. `agentic AI agents progress announcements last 31 days`
+11. `AI agents enterprise strategy deployment last 31 days`
 
 Also run 1–2 searches for notable emerging AI companies (e.g., Mistral, xAI, Cohere, Stability AI, Runway).
 
