@@ -14,6 +14,7 @@ import os
 import smtplib
 import sys
 from datetime import date
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -47,11 +48,15 @@ def load_config():
 # ---------------------------------------------------------------------------
 
 def send(to: str, subject: str, html_body: str, config: dict):
-    msg = MIMEMultipart("alternative")
+    msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"] = f"{config['SENDER_NAME']} <{config['SMTP_USER']}>"
     msg["To"] = to
     msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+    attachment = MIMEApplication(html_body.encode("utf-8"), Name="newsletter.html")
+    attachment["Content-Disposition"] = 'attachment; filename="newsletter.html"'
+    msg.attach(attachment)
 
     print(f"[->] Connecting to {config['SMTP_HOST']}:{config['SMTP_PORT']} ...")
     with smtplib.SMTP(config["SMTP_HOST"], int(config["SMTP_PORT"])) as server:
