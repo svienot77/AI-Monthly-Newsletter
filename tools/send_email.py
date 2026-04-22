@@ -69,11 +69,17 @@ def _get_access_token(config: dict) -> str:
     return resp.json()["access_token"]
 
 
-def send(to: str, subject: str, html_body: str, config: dict):
+def send(to: str | list[str], subject: str, html_body: str, config: dict):
+    """Send to one or more recipients. `to` can be a single address or a list."""
+    if isinstance(to, str):
+        recipients = [e.strip() for e in to.replace(";", ",").split(",") if e.strip()]
+    else:
+        recipients = [e.strip() for e in to if e.strip()]
+
     print("[->] Obtaining Microsoft access token ...")
     access_token = _get_access_token(config)
 
-    print(f"[->] Sending email to {to} via Microsoft Graph ...")
+    print(f"[->] Sending email to {', '.join(recipients)} via Microsoft Graph ...")
     resp = requests.post(
         "https://graph.microsoft.com/v1.0/me/sendMail",
         headers={
@@ -84,7 +90,7 @@ def send(to: str, subject: str, html_body: str, config: dict):
             "message": {
                 "subject": subject,
                 "body": {"contentType": "HTML", "content": html_body},
-                "toRecipients": [{"emailAddress": {"address": to}}],
+                "toRecipients": [{"emailAddress": {"address": r}} for r in recipients],
                 "from": {
                     "emailAddress": {
                         "name": config["SENDER_NAME"],
@@ -98,7 +104,7 @@ def send(to: str, subject: str, html_body: str, config: dict):
     )
     if not resp.ok:
         raise RuntimeError(f"Graph API sendMail failed ({resp.status_code}): {resp.text}")
-    print(f"[OK] Newsletter sent to {to}")
+    print(f"[OK] Newsletter sent to {', '.join(recipients)}")
 
 
 def main():
