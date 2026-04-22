@@ -56,13 +56,23 @@ def send(to: str, subject: str, html_body: str, config: dict):
     attachment["Content-Disposition"] = 'attachment; filename="newsletter.html"'
     msg.attach(attachment)
 
-    print(f"[->] Connecting to {config['SMTP_HOST']}:{config['SMTP_PORT']} ...")
-    with smtplib.SMTP(config["SMTP_HOST"], int(config["SMTP_PORT"])) as server:
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
-        server.sendmail(config["SMTP_USER"], to, msg.as_string())
+    port = int(config["SMTP_PORT"])
+    print(f"[->] Connecting to {config['SMTP_HOST']}:{port} ...")
+    if port == 465:
+        # SSL from the start (required on Railway where port 587/STARTTLS is blocked)
+        import ssl
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP_SSL(config["SMTP_HOST"], port, context=ctx) as server:
+            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+            server.sendmail(config["SMTP_USER"], to, msg.as_string())
+    else:
+        # STARTTLS (port 587, works locally)
+        with smtplib.SMTP(config["SMTP_HOST"], port) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+            server.sendmail(config["SMTP_USER"], to, msg.as_string())
 
     print(f"[OK] Newsletter sent to {to}")
 
