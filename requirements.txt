@@ -1,1 +1,5 @@
 python-dotenv
+flask
+gunicorn
+apscheduler
+anthropic

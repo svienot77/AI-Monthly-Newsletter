@@ -23,29 +23,45 @@ tools/          # Python scripts for deterministic execution (API calls, transfo
 
 ## Current Workflow: Newsletter (`workflows/newsletter.md`)
 
-The newsletter workflow is **AI-orchestrated**: Claude performs steps 1–3 directly, and only step 4 invokes a Python tool.
+Two modes of operation:
 
-| Step | Who executes | What happens |
+**Interactive (Claude Code session):** Claude performs steps 1–3 directly, then calls `python tools/send_email.py`.
+
+**Automated (web service / Railway):** `tools/generate_newsletter.py` calls the Anthropic API with the `web_search` tool, builds the HTML in-memory, and `app.py` delivers it via `tools/send_email.py`.
+
+| Step | Interactive | Automated |
 |---|---|---|
-| 1. Research | Claude (WebSearch) | 6+ parallel searches, collect 8–12 news items |
-| 2. Structure | Claude | Organize into Intro / Key Takeaways / Deep Dive / Briefs / Sources |
-| 3. Generate HTML | Claude | Write email-safe HTML → save to `.tmp/newsletter.html` |
-| 4. Send | Python tool | `python tools/send_email.py` |
+| 1. Research | Claude (WebSearch) | `generate_newsletter.py` → Anthropic API + web_search |
+| 2. Structure | Claude | Anthropic API response (JSON) |
+| 3. Generate HTML | Claude → `.tmp/newsletter.html` | Python string substitution (in-memory) |
+| 4. Send | `python tools/send_email.py` | `app.py` calls `send_email.send()` |
 
 `send_email.py` accepts `--to` and `--subject` flags to override `.env` defaults.
+
+## Web Service (`app.py`)
+
+Flask app with APScheduler. Start locally: `python app.py` → <http://localhost:5000>
+
+**IMPORTANT:** Gunicorn must run with `--workers 1` (enforced in `railway.json`). This is intentional — APScheduler runs in-process and would fire the monthly job N times with N workers.
+
+Newsletter HTML is passed in-memory between generation and sending. Nothing is written to `.tmp/` in the automated code path.
 
 ## Required `.env` Keys
 
 ```
-SMTP_HOST=smtp.gmail.com       # Gmail SMTP (STARTTLS, port 587)
+ANTHROPIC_API_KEY=sk-ant-...        # Required for automated generation
+SMTP_HOST=smtp.gmail.com            # Gmail SMTP (STARTTLS, port 587)
 SMTP_PORT=587
 SMTP_USER=you@gmail.com
 SMTP_PASSWORD=xxxx xxxx xxxx xxxx   # Gmail App Password — NOT your Google password
 RECIPIENT_EMAIL=recipient@domain.com
 SENDER_NAME=AI Pulse                # optional, defaults to "AI Pulse"
+NEWSLETTER_SCHEDULE_DAY=1           # Day of month for scheduled send (default: 1)
 ```
 
 Gmail requires 2-Step Verification enabled, then an App Password generated at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) (app: Mail).
+
+See `.env.example` for the full template.
 
 ## How to Run Tools
 
@@ -56,7 +72,7 @@ python tools/<script_name>.py
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt   # python-dotenv only; smtplib is stdlib
+pip install -r requirements.txt   # flask, gunicorn, apscheduler, anthropic, python-dotenv
 ```
 
 ## Operating Rules

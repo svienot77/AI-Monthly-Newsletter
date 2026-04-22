@@ -36,9 +36,7 @@ def load_config():
     config = {k: os.getenv(k) for k in required}
     missing = [k for k, v in config.items() if not v]
     if missing:
-        print(f"[ERROR] Missing .env keys: {', '.join(missing)}")
-        print("        Copy .env.example to .env and fill in your credentials.")
-        sys.exit(1)
+        raise ValueError(f"Missing .env keys: {', '.join(missing)}. Copy .env.example to .env and fill in your credentials.")
     config["SENDER_NAME"] = os.getenv("SENDER_NAME", "AI Pulse")
     return config
 

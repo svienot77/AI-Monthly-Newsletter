@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Pulse — Send Newsletter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 36px;
+      border-top: 4px solid #0078d4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    h1 { color: #0f1f3d; font-size: 22px; margin: 0 0 4px 0; }
+    .sub { color: #666; font-size: 13px; margin: 0 0 28px 0; line-height: 1.5; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .optional { font-weight: normal; color: #999; }
+    input[type="email"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 20px;
+      transition: border-color 0.15s;
+    }
+    input[type="email"]:focus, textarea:focus {
+      outline: none;
+      border-color: #0078d4;
+    }
+    textarea { height: 110px; resize: vertical; }
+    .hint { font-size: 12px; color: #888; margin: -16px 0 20px 0; line-height: 1.5; }
+    button {
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      padding: 13px 28px;
+      font-size: 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
+    }
+    button:hover:not(:disabled) { background: #005fa3; }
+    button:disabled { background: #a0c4e8; cursor: not-allowed; }
+    #status {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+    }
+    #status.ok  { background: #e6f4ea; color: #2d7a3a; border: 1px solid #b7dfbe; }
+    #status.err { background: #fce8e6; color: #c5221f; border: 1px solid #f5c6c4; }
+    #status.busy { background: #fff3cd; color: #856404; border: 1px solid #ffd966; }
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 24px 0;
+    }
+    .schedule-note {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.6;
+    }
+    .schedule-note strong { color: #555; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>AI Pulse Newsletter</h1>
+    <p class="sub">Generate and deliver the monthly AI newsletter on demand.</p>
+
+    <form id="nlForm" novalidate>
+      <label for="recipient">
+        Recipient Email <span class="optional">(optional)</span>
+      </label>
+      <input
+        type="email"
+        id="recipient"
+        name="recipient"
+        placeholder="Leave blank to use the default from environment"
+        autocomplete="email"
+      >
+
+      <label for="extra_topics">
+        Additional Topics <span class="optional">(optional)</span>
+      </label>
+      <textarea
+        id="extra_topics"
+        name="extra_topics"
+        placeholder="One topic per line, e.g.&#10;AI safety regulation EU&#10;Apple AI strategy update&#10;Perplexity enterprise product"
+      ></textarea>
+      <p class="hint">Each line becomes an extra web search on top of the 11 standard queries.</p>
+
+      <button type="submit" id="submitBtn">Generate &amp; Send Newsletter</button>
+    </form>
+
+    <div id="status" role="alert"></div>
+
+    <hr class="divider">
+    <p class="schedule-note">
+      <strong>Scheduled delivery:</strong> this newsletter also runs automatically on the
+      <strong id="scheduleDay">1st</strong> of each month at 08:00 UTC,
+      configurable via the <code>NEWSLETTER_SCHEDULE_DAY</code> environment variable.
+    </p>
+  </div>
+
+  <script>
+    const form     = document.getElementById('nlForm');
+    const btn      = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      btn.disabled = true;
+      btn.textContent = 'Generating… (~2 min)';
+      statusEl.style.display = 'none';
+      statusEl.className = '';
+
+      const data = new FormData(form);
+
+      try {
+        const res  = await fetch('/send', { method: 'POST', body: data });
+        const json = await res.json();
+
+        if (res.status === 202) {
+          statusEl.className = 'ok';
+        } else if (res.status === 409) {
+          statusEl.className = 'busy';
+        } else {
+          statusEl.className = 'err';
+        }
+        statusEl.textContent = json.message || (res.ok ? 'Request accepted.' : 'An error occurred.');
+      } catch {
+        statusEl.className = 'err';
+        statusEl.textContent = 'Network error — check server logs.';
+      }
+
+      statusEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Generate & Send Newsletter';
+    });
+  </script>
+</body>
+</html>
