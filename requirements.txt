@@ -3,3 +3,4 @@ flask
 gunicorn
 apscheduler
 anthropic
+requests

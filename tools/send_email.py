@@ -1,29 +1,30 @@
 """
-send_email.py — Send the newsletter HTML file via Outlook / Office 365 SMTP.
+send_email.py — Send the newsletter HTML via Microsoft Graph API (HTTPS).
+
+Uses OAuth2 refresh-token flow to obtain a short-lived access token, then
+calls POST /me/sendMail. Works on Railway (no SMTP port restrictions).
 
 Usage:
     python tools/send_email.py
     python tools/send_email.py --to other@domain.com --subject "Custom subject"
 
-Reads:  .tmp/newsletter.html
-Config: .env (SMTP_USER, SMTP_PASSWORD, SMTP_HOST, SMTP_PORT, RECIPIENT_EMAIL, SENDER_NAME)
+Config: .env
+    MICROSOFT_CLIENT_ID
+    MICROSOFT_CLIENT_SECRET
+    MICROSOFT_TENANT_ID   (use "consumers" for personal Hotmail/Outlook accounts)
+    MICROSOFT_REFRESH_TOKEN
+    RECIPIENT_EMAIL
+    SENDER_NAME           (optional, default: "AI Pulse")
 """
 
 import argparse
 import os
-import smtplib
 import sys
 from datetime import date
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 
+import requests
 from dotenv import load_dotenv
-
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
 
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
@@ -32,53 +33,76 @@ HTML_FILE = ROOT / ".tmp" / "newsletter.html"
 
 
 def load_config():
-    required = ["SMTP_USER", "SMTP_PASSWORD", "SMTP_HOST", "SMTP_PORT", "RECIPIENT_EMAIL"]
+    required = [
+        "MICROSOFT_CLIENT_ID",
+        "MICROSOFT_CLIENT_SECRET",
+        "MICROSOFT_TENANT_ID",
+        "MICROSOFT_REFRESH_TOKEN",
+        "RECIPIENT_EMAIL",
+    ]
     config = {k: os.getenv(k) for k in required}
     missing = [k for k, v in config.items() if not v]
     if missing:
-        raise ValueError(f"Missing .env keys: {', '.join(missing)}. Copy .env.example to .env and fill in your credentials.")
+        raise ValueError(
+            f"Missing .env keys: {', '.join(missing)}. Copy .env.example to .env and fill in your credentials."
+        )
     config["SENDER_NAME"] = os.getenv("SENDER_NAME", "AI Pulse")
     return config
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
+def _get_access_token(config: dict) -> str:
+    """Exchange the refresh token for a short-lived access token."""
+    tenant = config["MICROSOFT_TENANT_ID"]
+    resp = requests.post(
+        f"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token",
+        data={
+            "grant_type": "refresh_token",
+            "client_id": config["MICROSOFT_CLIENT_ID"],
+            "client_secret": config["MICROSOFT_CLIENT_SECRET"],
+            "refresh_token": config["MICROSOFT_REFRESH_TOKEN"],
+            "scope": "https://graph.microsoft.com/Mail.Send offline_access",
+        },
+        timeout=30,
+    )
+    if not resp.ok:
+        raise RuntimeError(f"Token refresh failed ({resp.status_code}): {resp.text}")
+    return resp.json()["access_token"]
+
 
 def send(to: str, subject: str, html_body: str, config: dict):
-    msg = MIMEMultipart("mixed")
-    msg["Subject"] = subject
-    msg["From"] = f"{config['SENDER_NAME']} <{config['SMTP_USER']}>"
-    msg["To"] = to
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    print("[->] Obtaining Microsoft access token ...")
+    access_token = _get_access_token(config)
 
-    attachment = MIMEApplication(html_body.encode("utf-8"), Name="newsletter.html")
-    attachment["Content-Disposition"] = 'attachment; filename="newsletter.html"'
-    msg.attach(attachment)
-
-    port = int(config["SMTP_PORT"])
-    print(f"[->] Connecting to {config['SMTP_HOST']}:{port} ...")
-    if port == 465:
-        # SSL from the start (required on Railway where port 587/STARTTLS is blocked)
-        import ssl
-        ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL(config["SMTP_HOST"], port, context=ctx) as server:
-            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
-            server.sendmail(config["SMTP_USER"], to, msg.as_string())
-    else:
-        # STARTTLS (port 587, works locally)
-        with smtplib.SMTP(config["SMTP_HOST"], port) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
-            server.sendmail(config["SMTP_USER"], to, msg.as_string())
-
+    print(f"[->] Sending email to {to} via Microsoft Graph ...")
+    resp = requests.post(
+        "https://graph.microsoft.com/v1.0/me/sendMail",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "message": {
+                "subject": subject,
+                "body": {"contentType": "HTML", "content": html_body},
+                "toRecipients": [{"emailAddress": {"address": to}}],
+                "from": {
+                    "emailAddress": {
+                        "name": config["SENDER_NAME"],
+                        "address": os.getenv("SENDER_EMAIL", ""),
+                    }
+                },
+            },
+            "saveToSentItems": True,
+        },
+        timeout=30,
+    )
+    if not resp.ok:
+        raise RuntimeError(f"Graph API sendMail failed ({resp.status_code}): {resp.text}")
     print(f"[OK] Newsletter sent to {to}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Send AI Pulse newsletter via Outlook SMTP")
+    parser = argparse.ArgumentParser(description="Send AI Pulse newsletter via Microsoft Graph")
     parser.add_argument("--to", help="Override recipient email from .env")
     parser.add_argument("--subject", help="Override email subject")
     args = parser.parse_args()
