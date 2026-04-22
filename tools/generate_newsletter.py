@@ -123,7 +123,7 @@ def research_news(
         system=RESEARCH_SYSTEM,
         tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 20}],
         messages=[{"role": "user", "content": user_message}],
-        betas=["web-search-2025-03-05"],
+        extra_headers={"anthropic-beta": "web-search-2025-03-05"},
     )
 
     try:
