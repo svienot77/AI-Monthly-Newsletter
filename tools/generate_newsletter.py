@@ -63,17 +63,10 @@ Your job: replace every {{PLACEHOLDER}} with correct HTML content derived from t
 Return the COMPLETE HTML DOCUMENT and nothing else — no markdown, no explanation, no fences."""
 
 STANDARD_QUERIES = [
-    "Anthropic Claude AI news last 31 days",
-    "Google DeepMind AI news last 31 days",
-    "Meta AI Llama news last 31 days",
-    "Microsoft Azure AI Foundry news last 31 days",
-    "Microsoft Copilot AI news last 31 days",
-    "Perplexity AI news last 31 days",
-    "OpenAI GPT news last 31 days",
-    "Nvidia AI chips inference news last 31 days",
-    "agentic AI agents progress announcements last 31 days",
-    "AI agents enterprise strategy deployment last 31 days",
-    "emerging AI companies Mistral xAI Cohere news last 31 days",
+    "Anthropic OpenAI Google DeepMind AI news last 31 days",
+    "Microsoft Azure AI Foundry Copilot news last 31 days",
+    "Meta Nvidia Mistral xAI emerging AI companies news last 31 days",
+    "agentic AI agents enterprise deployment announcements last 31 days",
 ]
 
 
@@ -111,7 +104,8 @@ def research_news(
     query_list = "\n".join(f"{i+1}. {q}" for i, q in enumerate(queries))
     user_message = (
         f"Today's date: {today}\n\n"
-        f"Run ALL of these web searches and synthesize the results:\n{query_list}\n\n"
+        f"Run these web searches and synthesize the results:\n{query_list}\n\n"
+        "Each query covers multiple companies — run one search per line, do not split them further.\n\n"
         "Choose the deep dive topic as the most strategically significant story you find"
         + (f", or prioritise the first extra topic: '{extra_topics[0]}'" if extra_topics else "")
         + ".\n\nReturn only raw JSON matching the schema in your system prompt."
@@ -121,7 +115,7 @@ def research_news(
         model="claude-sonnet-4-6",
         max_tokens=8000,
         system=RESEARCH_SYSTEM,
-        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 20}],
+        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 11}],
         messages=[{"role": "user", "content": user_message}],
         extra_headers={"anthropic-beta": "web-search-2025-03-05"},
     )
