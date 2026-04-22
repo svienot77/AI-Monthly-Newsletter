@@ -140,8 +140,43 @@
     const statusEl  = document.getElementById('status');
     const passwordEl = document.getElementById('password');
 
+    let passwordVerified = false;
+
+    async function checkPassword() {
+      const pwd = passwordEl.value.trim();
+      if (!pwd) return;
+      const data = new FormData();
+      data.append('password', pwd);
+      try {
+        const res = await fetch('/auth', { method: 'POST', body: data });
+        if (res.ok) {
+          passwordVerified = true;
+          passwordEl.style.borderColor = '#2d7a3a';
+          btn.disabled = false;
+          statusEl.style.display = 'none';
+        } else {
+          passwordVerified = false;
+          passwordEl.style.borderColor = '#c5221f';
+          btn.disabled = true;
+          statusEl.className = 'err';
+          statusEl.textContent = 'Incorrect password.';
+          statusEl.style.display = 'block';
+        }
+      } catch {
+        /* network error — leave button state unchanged */
+      }
+    }
+
+    passwordEl.addEventListener('blur', checkPassword);
+    passwordEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); checkPassword(); }
+    });
     passwordEl.addEventListener('input', () => {
-      btn.disabled = passwordEl.value.trim() === '';
+      if (passwordVerified) {
+        passwordVerified = false;
+        btn.disabled = true;
+        passwordEl.style.borderColor = '';
+      }
     });
 
     form.addEventListener('submit', async (e) => {

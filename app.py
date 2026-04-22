@@ -107,6 +107,15 @@ def trigger_send():
     }), 202
 
 
+@app.post("/auth")
+def verify_password():
+    """Client-side password check — returns 200 if correct, 403 if not."""
+    expected_password = os.environ.get("APP_PASSWORD", "")
+    if not expected_password or request.form.get("password", "") == expected_password:
+        return jsonify({"status": "ok"}), 200
+    return jsonify({"status": "forbidden"}), 403
+
+
 @app.get("/health")
 def health():
     return jsonify({"status": "ok"}), 200
