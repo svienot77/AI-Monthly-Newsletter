@@ -73,6 +73,12 @@ def trigger_send():
     Generation takes ~2 minutes due to web_search API calls.
     Returns 409 if a job is already running.
     """
+    expected_password = os.environ.get("APP_PASSWORD", "")
+    if not expected_password:
+        app.logger.warning("APP_PASSWORD is not set — requests are unprotected.")
+    elif request.form.get("password", "") != expected_password:
+        return jsonify({"status": "forbidden", "message": "Incorrect password."}), 403
+
     if not _job_lock.acquire(blocking=False):
         return jsonify({
             "status": "busy",

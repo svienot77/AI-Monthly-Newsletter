@@ -90,6 +90,16 @@
     <p class="sub">Generate and deliver the monthly AI newsletter on demand.</p>
 
     <form id="nlForm" novalidate>
+      <label for="password">Access Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Enter password to unlock"
+        autocomplete="current-password"
+        required
+      >
+
       <label for="recipient">
         Recipient Email <span class="optional">(optional)</span>
       </label>
@@ -111,7 +121,7 @@
       ></textarea>
       <p class="hint">Each line becomes an extra web search on top of the 11 standard queries.</p>
 
-      <button type="submit" id="submitBtn">Generate &amp; Send Newsletter</button>
+      <button type="submit" id="submitBtn" disabled>Generate &amp; Send Newsletter</button>
     </form>
 
     <div id="status" role="alert"></div>
@@ -125,9 +135,14 @@
   </div>
 
   <script>
-    const form     = document.getElementById('nlForm');
-    const btn      = document.getElementById('submitBtn');
-    const statusEl = document.getElementById('status');
+    const form      = document.getElementById('nlForm');
+    const btn       = document.getElementById('submitBtn');
+    const statusEl  = document.getElementById('status');
+    const passwordEl = document.getElementById('password');
+
+    passwordEl.addEventListener('input', () => {
+      btn.disabled = passwordEl.value.trim() === '';
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -147,6 +162,9 @@
           statusEl.className = 'ok';
         } else if (res.status === 409) {
           statusEl.className = 'busy';
+        } else if (res.status === 403) {
+          statusEl.className = 'err';
+          passwordEl.focus();
         } else {
           statusEl.className = 'err';
         }
