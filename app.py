@@ -185,6 +185,9 @@ def health():
 # ---------------------------------------------------------------------------
 
 def start_scheduler():
+    if os.environ.get("NEWSLETTER_SCHEDULE_ENABLED", "true").lower() in ("false", "0", "no"):
+        app.logger.info("Scheduler disabled via NEWSLETTER_SCHEDULE_ENABLED — monthly newsletter will not fire.")
+        return
     schedule_day = os.environ.get("NEWSLETTER_SCHEDULE_DAY", "1")
     _scheduler.add_job(
         _scheduled_job,
